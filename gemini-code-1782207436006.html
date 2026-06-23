@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ms Lê Hằng English - Hệ Thống Ôn Tập Siêu Cấp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700;900&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8E44AD;
+            --primary-light: #A569BD;
+            --secondary: #F1C40F;
+            --bg-main: #D7BDE2;
+            --correct: #2ECC71;
+            --wrong: #E74C3C;
+            --text-dark: #2C3E50;
+            --card-shadow: 0 8px 0px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #C39BD3, #E8DAEF, #BB8FCE);
+            background-size: 400% 400%;
+            animation: crystalBg 15s ease infinite;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 70px; /* Chừa không gian cho thanh dock dưới cùng */
+        }
+
+        @keyframes crystalBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Top Header Brand */
+        .header-container {
+            text-align: center;
+            padding: 15px 10px 5px 10px;
+        }
+
+        .teacher-badge {
+            background: rgba(44, 62, 80, 0.6);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: inline-block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .main-title {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
+            font-size: 1.8rem;
+            color: white;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            margin: 0 0 15px 0;
+        }
+
+        /* Lời nhắc quan trọng (Yellow Alert Box) */
+        .alert-card {
+            background: #FFF2CC;
+            border: 3px solid #F1C40F;
+            border-radius: 20px;
+            max-width: 1100px;
+            margin: 0 auto 20px auto;
+            padding: 15px 25px;
+            text-align: center;
+            box-shadow: 0 6px 0px #F39C12;
+        }
+
+        .alert-card h3 {
+            margin: 0 0 5px 0;
+            color: #B7950B;
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+
+        .alert-card p {
+            margin: 5px 0;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #7D6608;
+        }
+
+        /* Thanh chứa các Tab Bài Tập (Phần 1 -> Phần 10) */
+        .tabs-wrapper {
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 0 15px;
+        }
+
+        .tab-button {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 10px 18px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0px #E2E8F0;
+            color: #5D6D7E;
+        }
+
+        .tab-button:hover {
+            transform: translateY(-2px);
+            background: #F4ECF7;
+        }
+
+        .tab-button.active {
+            background: var(--primary);
+            color: white;
+            border-color: #7D3C98;
+            box-shadow: 0 4px 0px #5B2C6F;
+        }
+
+        /* Khung hiển thị nội dung split-screen */
+        .content-section {
+            display: none; /* Mặc định ẩn, chỉ hiện tab active */
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 0 15px;
+            height: calc(100vh - 340px);
+            min-height: 480px;
+        }
+
+        .content-section.active {
+            display: grid;
+        }
+
+        /* Cột cuộn độc lập */
+        .column-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            border: 4px solid white;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .column-header {
+            background: #F4ECF7;
+            padding: 12px 20px;
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: var(--primary);
+            border-bottom: 2px solid #EBDEF0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .column-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Ẩn hiện đáp án trong đoạn văn (Interactive Blanks) */
+        .inline-blank {
+            background: #E8F8F5;
+            border: 2px dashed #1ABC9C;
+            color: #16A085;
+            padding: 2px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 900;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin: 0 4px;
+            transition: all 0.2s;
+        }
+
+        .inline-blank:hover {
+            background: #D1F2EB;
+            transform: scale(1.05);
+        }
+
+        .inline-blank.revealed {
+            background: #2ECC71;
+            border-style: solid;
+            border-color: #27AE60;
+            color: white;
+        }
+
+        /* Bài đọc & Bản dịch */
+        .passage-card {
+            font-size: 1.08rem;
+            line-height: 1.8;
+            color: #2E4053;
+        }
+
+        .translation-btn {
+            background: #34495E;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            box-shadow: 0 3px 0 #2C3E50;
+        }
+
+        .translation-text {
+            display: none;
+            margin-top: 12px;
+            padding: 15px;
+            background: #F2F4F4;
+            border-left: 5px solid #BDC3C7;
+            border-radius: 8px;
+            color: #566573;
+            font-style: italic;
+            font-size: 0.98rem;
+        }
+
+        /* Câu hỏi Trắc nghiệm */
+        .question-node {
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 0px #E5E7EB;
+        }
+
+        .question-text {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: #2C3E50;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .option-item {
+            background: #F8FAFC;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 3px 0px #E2E8F0;
+        }
+
+        .option-item:hover {
+            background: #EDF2F7;
+            transform: translateY(-1px);
+        }
+
+        .option-item.correct {
+            background: var(--correct) !important;
+            color: white;
+            border-color: #27AE60;
+            box-shadow: 0 3px 0px #1E8449;
+        }
+
+        .option-item.wrong {
+            background: var(--wrong) !important;
+            color: white;
+            border-color: #C0392B;
+            box-shadow: 0 3px 0px #922B21;
+            animation: shakeElement 0.3s ease-in-out;
+        }
+
+        @keyframes shakeElement {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .explain-box {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: #EBF5FB;
+            border-radius: 10px;
+            border-left: 4px solid #3498DB;
+            font-size: 0.92rem;
+            color: #2E4053;
+        }
+
+        /* Bảng từ vựng Glossary */
+        .glossary-box {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .glossary-box th { background: var(--primary-light); color: white; padding: 8px; text-align: left; }
+        .glossary-box td { padding: 8px; border-bottom: 1px solid #E5E7EB; font-size: 0.9rem; }
+
+        /* Dock Dưới Cùng (Bottom Sticky Dock) */
+        .bottom-dock {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            height: 70px;
+            background: white;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 999;
+        }
+
+        .score-counter {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .action-submit-btn {
+            background: var(--correct);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 10px 35px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0px #27AE60;
+        }
+
+        .action-submit-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0px #27AE60;
+        }
+
+        /* Modal báo điểm */
+        .score-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 10000;
+            justify-content: center; align-items: center;
+        }
+        .score-modal-body {
+            background: white; padding: 35px; border-radius: 28px;
+            text-align: center; max-width: 440px; width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .large-badge {
+            width: 120px; height: 120px; background: var(--primary);
+            color: white; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+            margin: 15px auto; font-size: 2rem; font-weight: 900;
+            border: 6px solid #E8DAEF;
+        }
+
+        @media (max-width: 850px) {
+            .content-section { grid-template-columns: 1fr; height: auto; }
+            body { padding-bottom: 90px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Khung Tiêu Đề -->
+    <div class="header-container">
+        <div class="teacher-badge">Giáo viên tạo: Ms Lê Hằng English</div>
+        <h1 class="main-title">✨ Ôn Tập Tiếng Anh Siêu Cấp (Ex 12 - 15) ✨</h1>
+    </div>
+
+    <!-- Hộp Nhắc Nhở Quan Trọng -->
+    <div class="alert-card">
+        <h3>⚠️ LỜI NHẮC CỰC KỲ QUAN TRỌNG ⚠️</h3>
+        <p>Chỉ có đọc kỹ giải thích ngay sau mỗi câu, sau đó ghi lại từ vựng/cấu trúc mới vào vở để học thì mới thực sự giỏi lên.</p>
+        <p><i>* Kéo tới đâu, làm tới đó! *</i></p>
+    </div>
+
+    <!-- Thanh Điều Hướng Các Bài Tập (Tabs Bar) -->
+    <div class="tabs-wrapper">
+        <button class="tab-button active" onclick="activateTab(0)">⭐ Phần 1: Ex 12 (6-9)</button>
+        <button class="tab-button" onclick="activateTab(1)">⭐ Phần 2: Ex 12 (10-13)</button>
+        <button class="tab-button" onclick="activateTab(2)">⭐ Phần 3: Ex 13 (14-19)</button>
+        <button class="tab-button" onclick="activateTab(3)">⭐ Phần 4: Ex 13 (20-25)</button>
+        <button class="tab-button" onclick="activateTab(4)">⭐ Phần 5: Ex 14 (26-30)</button>
+        <button class="tab-button" onclick="activateTab(5)">⭐ Phần 6: Ex 14 (31-35)</button>
+        <button class="tab-button" onclick="activateTab(6)">⭐ Phần 7: Ex 15 (36-39)</button>
+        <button class="tab-button" onclick="activateTab(7)">⭐ Phần 8: Ex 15 (40-43)</button>
+    </div>
+
+    <!-- SECTION CONTENT KHU VỰC CHỨA CÁC BÀI THI -->
+    
+    <!-- TAB 1: EX 12 (6-9) -->
+    <div class="content-section active" id="tab-idx-0">
+        <div class="column-box">
+            <div class="column-header">📖 Reading Passage</div>
+            <div class="column-body passage-card">
+                <p>💻 <b>New Computer Room Now Open!</b> 💾</p>
+                <p>Do you need <span class="inline-blank" onclick="revealTextBlank(this, 'many')">(6) ❓ Click</span> computers for your school work or for fun?</p>
+                <p>Our new Computer Room is open for all students! It has <span class="inline-blank" onclick="revealTextBlank(this, 'new')">(7) ❓ Click</span> fast computers and free internet. You can use it <span class="inline-blank" onclick="revealTextBlank(this, 'from')">(8) ❓ Click</span> 8:00 AM to 5:00 PM every day. It is a good place to study and learn new things. Please be quiet and take care of the <span class="inline-blank" onclick="revealTextBlank(this, 'equipment')">(9) ❓ Click</span>. Ask the teacher if you need help!</p>
+                <button class="translation-btn" onclick="toggleTransField('tr-1')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-text" id="tr-1">Phòng máy tính mới hiện đã mở cửa! Bạn có cần nhiều máy tính cho việc học ở trường hay để giải trí không? Phòng máy tính mới của chúng tôi mở cửa cho tất cả học sinh! Nó có các máy tính mới, nhanh và internet miễn phí. Bạn có thể sử dụng từ 8:00 sáng đến 5:00 chiều mỗi ngày. Đó là một nơi tốt để nghiên cứu và học hỏi những điều mới. Hãy giữ im lặng và chăm sóc thiết bị. Hãy hỏi giáo viên nếu bạn cần giúp đỡ!</div>
+            </div>
+        </div>
+        <div class="column-box">
+            <div class="column-header">📝 Questions Box</div>
+            <div class="column-body" id="q-box-0"></div>
+        </div>
+    </div>
+
+    <!-- TAB 2: EX 12 (10-13) -->
+    <div class="content-section" id="tab-idx-1">
+        <div class="column-box">
+            <div class="column-header">📖 Reading Passage</div>
+            <div class="column-body passage-card">
+                <p>🏫 <b>Open Day at Green Hill School!</b> 🎉</p>
+                <p>Parents and future students are welcome to visit our school!</p>
+                <p>Come and see our beautiful classrooms and <span class="inline-blank" onclick="revealTextBlank(this, 'on')">(10) ❓ Click</span> Saturday, October 20th. Our event starts <span class="inline-blank" onclick="revealTextBlank(this, 'starts')">(11) ❓ Click</span> 9:00 AM. You can meet our <span class="inline-blank" onclick="revealTextBlank(this, 'friendly')">(12) ❓ Click</span> teachers and talk to the principal. This is a great chance <span class="inline-blank" onclick="revealTextBlank(this, 'to learn')">(13) ❓ Click</span> learn about our activities and programs. We also have a nice playground for the children. We hope to see you there!</p>
+                <button class="translation-btn" onclick="toggleTransField('tr-2')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-text" id="tr-2">Ngày hội mở cửa tại trường Green Hill! Phụ huynh và học sinh tương lai được chào đón đến thăm trường của chúng tôi! Hãy đến xem những lớp học xinh đẹp của chúng tôi vào thứ Bảy, ngày 20 tháng 10. Sự kiện của chúng tôi bắt đầu lúc 9:00 sáng. Bạn có thể gặp gỡ những giáo viên thân thiện của chúng tôi và trò chuyện với hiệu trưởng. Đây là cơ hội tuyệt vời để tìm hiểu về các hoạt động và chương trình của chúng tôi. Chúng tôi cũng có một sân chơi đẹp cho trẻ em. We hy vọng gặp bạn ở đó!</div>
+            </div>
+        </div>
+        <div class="column-box">
+            <div class="column-header">📝 Questions Box</div>
+            <div class="column-body" id="q-box-1"></div>
+        </div>
+    </div>
+
+    <!-- TAB 3: EX 13 (14-19) -->
+    <div class="content-section" id="tab-idx-2">
+        <div class="column-box">
+            <div class="column-header">📖 Reading Passage</div>
+            <div class="column-body passage-card">
+                <p>🏛️ <b>Imperial Academy</b></p>
+                <p>People regard the Imperial Academy as Viet Nam's first university. It is located inside the Temple of Literature <span class="inline-blank" onclick="revealTextBlank(this, 'in')">(14) ❓ Click</span> Ha Noi. The Academy was founded in 1076. At first, it was a school for royal students but then, <span class="inline-blank" onclick="revealTextBlank(this, 'gifted')">(15) ❓ Click</span> students from ordinary families <span class="inline-blank" onclick="revealTextBlank(this, 'could')">(16) ❓ Click</span> also study at the Academy. The students discussed literature, wrote poems and sat for monthly tests. They had four major tests each year. Those who <span class="inline-blank" onclick="revealTextBlank(this, 'passed')">(17) ❓ Click</span> the major tests would take the Hoi Examination, and then the Dinh Examination. The <span class="inline-blank" onclick="revealTextBlank(this, 'best')">(18) ❓ Click</span> students in the Dinh examination would become the imperial officials. The Imperial Academy was a(n) <span class="inline-blank" onclick="revealTextBlank(this, 'important')">(19) ❓ Click</span> education centre in the country at that time.</p>
+                <button class="translation-btn" onclick="toggleTransField('tr-3')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-text" id="tr-3">Người ta coi Quốc Tử Giám là trường đại học đầu tiên của Việt Nam. Nó nằm bên trong Văn Miếu ở Hà Nội. Học viện được thành lập vào năm 1076. Lúc đầu, nó là trường dành cho học sinh hoàng gia nhưng sau đó, những học sinh tài năng từ các gia đình bình thường cũng có thể học tại Học viện. Các sinh viên thảo luận về văn học, làm thơ và tham gia các bài kiểm tra hàng tháng. Họ có bốn bài kiểm tra chính mỗi năm. Những người vượt qua các kỳ thi chính sẽ tham gia kỳ thi Hội, sau đó là kỳ thi Đình. Những sinh viên xuất sắc nhất trong kỳ thi Đình sẽ trở thành các quan lại triều đình. Quốc Tử Giám là một trung tâm giáo dục quan trọng của đất nước vào thời điểm đó.</div>
+            </div>
+        </div>
+        <div class="column-box">
+            <div class="column-header">📝 Questions Box</div>
+            <div class="column-body" id="q-box-2"></div>
+        </div>
+    </div>
+
+    <!-- TAB 4: EX 13 (20-25) -->
+    <div class="content-section" id="tab-idx-3">
+        <div class="column-box">
+            <div class="column-header">📖 Reading Passage</div>
+            <div class="column-body passage-card">
+                <p>🌐 <b>UNIS Ha Noi - United Nation International School</b></p>
+                <p>UNIS Ha Noi is the first international school in Vietnam. It was <span class="inline-blank" onclick="revealTextBlank(this, 'started')">(20) ❓ Click</span> in 1988, with 12 students. It had to rent a location at the time. Now, the school welcomes 1,100 students from 3 years old to those in grade 12, coming from nearly 70 nationalities daily. It follows the United Nations' principles and offers a truly <span class="inline-blank" onclick="revealTextBlank(this, 'international')">(21) ❓ Click</span> education. The school is a real learning community. <span class="inline-blank" onclick="revealTextBlank(this, 'Students')">(22) ❓ Click</span> are encouraged to be creative, confident and caring. They learn to value cultural diversity and to work together for a better <span class="inline-blank" onclick="revealTextBlank(this, 'world')">(23) ❓ Click</span>. The school is committed to children's happiness because it believes happiness will bring the quality of relationships. It also has many community <span class="inline-blank" onclick="revealTextBlank(this, 'activities')">(24) ❓ Click</span> for students to experience and to discover their potential. Therefore, these activities are both fun <span class="inline-blank" onclick="revealTextBlank(this, 'and')">(25) ❓ Click</span> meaningful.</p>
+                <button class="translation-btn" onclick="toggleTransField('tr-4')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-text" id="tr-4">UNIS Hà Nội là trường quốc tế đầu tiên tại Việt Nam. Được thành lập năm 1988 với 12 học sinh. Hiện nay trường đón tiếp 1100 học sinh từ 3 tuổi đến lớp 12 thuộc gần 70 quốc tịch mỗi ngày. Trường đem lại nền giáo dục chuẩn quốc tế thực sự. Học sinh được khuyến khích sáng tạo, tự tin. Các em học cách trân trọng sự đa dạng văn hóa và cùng làm việc vì một thế giới tốt đẹp hơn. Trường có nhiều hoạt động cộng đồng để học sinh khám phá tiềm năng.</div>
+            </div>
+        </div>
+        <div class="column-box">
+            <div class="column-header">📝 Questions Box</div>
+            <div class="column-body" id="q-box-3"></div>
+        </div>
+    </div>
+
+    <!-- TAB 5: EX 14 (26-30) -->
+    <div class="content-section" id="tab-idx-4">
+        <div class="column-box">
+            <div class="column-header">📖 Reading Passage</div>
+            <div class="column-body passage-card">
+                <p>🎓 <b>Monash University</b></p>
+                <p>Monash University is a public university located in Melbourne, Australia. It was established in 1958 by an Act of the State Parliament of Victorian is the second oldest university in the State of Victoria. The university was named after the prominent Australian General Sir John Monash. This was the first time in Australia that a university had been named after a person, rather than a city or state. IT was originally intended to have an emphasis on science and technology. However, it quickly expanded beyond this. In its early years, it offered undergraduate and postgraduate degrees in engineering, medicine, science, arts, economics and politics, education and law. Initially, it was best known for its strong research capacity in the sciences and for its innovative teaching in law and medicine.</p>
+                <button class="translation-btn" onclick="toggleTransField('tr-5')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-text" id="tr-5">Đại học Monash là đại học công lập nằm ở Melbourne, Úc. Được thành lập năm 1958 và là đại học lâu đời thứ 2 tại bang Victoria. Trường được đặt theo tên tướng Sir John Monash danh tiếng. Đây là lần đầu một trường đại học của Úc đặt theo tên người thay vì tên thành phố hay tiểu bang. Ban đầu định hướng nghiên cứu khoa học công nghệ, sau mở rộng ra đa ngành nghệ thuật, kinh tế, luật...</div>
+            </div>
+        </div>
+        <div class="column-box">
+            <div class="column-header">📝 Questions Box</div>
+            <div class="column-body" id="q-box-4"></div>
+        </div>
+    </div>
+
+    <!-- TAB 6: EX 14 (31-35) -->
+    <div class="content-section" id="tab-idx-5">
+        <div class="column-box">
+            <div class="column-header">📖 Reading Passage</div>
+            <div class="column-body passage-card">
+                <p>👨‍🏫 <b>Chu Van An</b></p>
+                <p>From a young age, Chu Van An was already known as a respectable man who did not seek fame and wealth but only liked to stay at home to read books. After passing the doctoral examination, he refused to work as a mandarin and returned to his native village to open a school and worked as a teacher. He had many students who came from different parts of the country. Many of them were successful in learning and became famous such as Pham Su Manh and Le Quat. His seriousness, noble conduct and intelligence attracted more and more students. Later, Chu Van An was invited to the capital city to be in charge of Quoc Tu Giam, the first university of Vietnam.</p>
+                <button class="translation-btn" onclick="toggleTransField('tr-6')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-text" id="tr-6">Từ nhỏ, Chu Văn An đã nổi tiếng là một người đức độ đáng kính, không mưu cầu danh lợi mà chỉ thích ở nhà đọc sách. Sau khi đỗ đạt, ông từ chối làm quan, về quê mở trường dạy học. Học trò của ông đến từ khắp nơi trên cả nước, nhiều người đỗ đạt cao và nổi tiếng như Phạm Sư Mạnh, Lê Quát. Sự nghiêm túc, phẩm hạnh cao quý và trí tuệ của ông đã thu hút ngày càng nhiều học trò. Sau này ông được mời về kinh đô phụ trách Quốc Tử Giám.</div>
+            </div>
+        </div>
+        <div class="column-box">
+            <div class="column-header">📝 Questions Box</div>
+            <div class="column-body" id="q-box-5"></div>
+        </div>
+    </div>
+
+    <!-- TAB 7: EX 15 (36-39) -->
+    <div class="content-section" id="tab-idx-6">
+        <div class="column-box">
+            <div class="column-header">📖 Reading Passage</div>
+            <div class="column-body passage-card">
+                <p>⚡ <b>Hogwarts School</b></p>
+                <p>Hogwarts School is an imaginative school in the Harry Potter series. According to the author J.K. Rowling, Hogwarts School is in the Highlands of Scotland. <span class="inline-blank" onclick="revealTextBlank(this, 'It was founded in the 10th century.')">(36) ❓ Click</span> It is a boarding school for all children with magical ability. They don't have to take any entrance exam to enter the school. <span class="inline-blank" onclick="revealTextBlank(this, 'There are about 1000 students studying there.')">(37) ❓ Click</span> They learn theory and train their magical skills.</p>
+                <p>Hogwarts is a large school. There are no TVs, projectors, or computers but many areas for special training of magics. <span class="inline-blank" onclick="revealTextBlank(this, 'The students also have to wear a uniform every day.')">(38) ❓ Click</span> The school has a giant dining hall and large yards for students to do sports and other outdoor activities.</p>
+                <p>Studying at Hogwarts is fun and adventurous. <span class="inline-blank" onclick="revealTextBlank(this, 'I think it is the best place to learn.')">(39) ❓ Click</span></p>
+                <button class="translation-btn" onclick="toggleTransField('tr-7')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-text" id="tr-7">Trường Hogwarts là một trường học giả tưởng trong loạt truyện Harry Potter. Theo tác giả, trường nằm ở vùng cao nguyên Scotland. Đây là trường nội trú cho trẻ em có khả năng ma thuật. Không cần thi tuyển đầu vào, học sinh học lý thuyết và thực hành phép thuật. Trường rất lớn, không có tivi máy tính nhưng có nhiều khu tập luyện ma thuật, nhà ăn khổng lồ và sân chơi rộng lớn.</div>
+            </div>
+        </div>
+        <div class="column-box">
+            <div class="column-header">📝 Questions Box</div>
+            <div class="column-body" id="q-box-6"></div>
+        </div>
+    </div>
+
+    <!-- TAB 8: EX 15 (40-43) -->
+    <div class="content-section" id="tab-idx-7">
+        <div class="column-box">
+            <div class="column-header">📖 Reading Passage</div>
+            <div class="column-body passage-card">
+                <p>🏫 <b>Le Quy Don School</b></p>
+                <p>Le Quy Don School was built in 1877 and is the most long standing lower secondary school in Ho Chi Minh City. <span class="inline-blank" onclick="revealTextBlank(this, 'It had different names and got this name in 1981.')">(40) ❓ Click</span> It is famous for the quality of teaching and learning. It offers students many clubs such as book club, football club, art club and photography club. <span class="inline-blank" onclick="revealTextBlank(this, 'The school\'s students have won many precious prizes in different competitions at district and city levels.')">(41) ❓ Click</span> Le Quy Don was the first school in Ho Chi Minh City to teach four foreign languages including English, German, Japanese and French. <span class="inline-blank" onclick="revealTextBlank(this, 'It also plans to prepare students to speak two foreign languages.')">(42) ❓ Click</span> The school also has very up-to-date facilities <span class="inline-blank" onclick="revealTextBlank(this, 'such as an online library and other modern classroom facilities.')">(43) ❓ Click</span>.</p>
+                <button class="translation-btn" onclick="toggleTransField('tr-8')">Mở dịch đoạn này 🌟</button>
+                <div class="translation-text" id="tr-8">Trường Lê Quý Đôn xây năm 1877, là trường THCS lâu đời nhất tại TP.HCM. Trường đổi tên thành Lê Quý Đôn năm 1981. Trường có nhiều CLB đa dạng. Học sinh trường đạt nhiều giải thưởng danh giá cấp quận và thành phố. Đây là trường đầu tiên dạy 4 ngoại ngữ Anh, Đức, Nhật, Pháp và cơ sở vật chất cực kỳ tối tân như thư viện trực tuyến.</div>
+            </div>
+        </div>
+        <div class="column-box">
+            <div class="column-header">📝 Questions Box</div>
+            <div class="column-body" id="q-box-7"></div>
+        </div>
+    </div>
+
+    <!-- DOCK THANH ĐIỀU KHIỂN DƯỚI CÙNG -->
+    <div class="bottom-dock">
+        <div class="score-counter">⭐ Điểm của con: <span id="dock-score">0</span></div>
+        <button class="action-submit-btn" onclick="processFinalEvaluation()">NỘP BÀI 🚀</button>
+    </div>
+
+    <!-- MODAL HIỂN THỊ KẾT QUẢ CUỐI CÙNG -->
+    <div class="score-modal" id="finish-panel">
+        <div class="score-modal-body">
+            <h2 style="font-family:'Nunito'; font-weight:900; color:var(--primary); margin:0;">BÀI THI HOÀN THÀNH!</h2>
+            <div class="large-badge" id="modal-score-badge">0/0</div>
+            <p id="modal-speech" style="font-weight:700; color:#566573; font-size:1.1rem; line-height:1.5;"></p>
+            <button class="action-submit-btn" onclick="location.reload()" style="background:var(--primary); box-shadow: 0 4px 0px #5B2C6F;">LÀM LẠI BÀI THI 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // Cấu trúc data câu hỏi chuẩn hóa toàn vẹn
+        const database = [
+            // Tab 0
+            { tab: 0, id: 6, q: "Do you need (6) ______ computers for your school work or for fun?", options: ["much", "many", "a lot of", "little"], correct: "many", exp: "Computers là danh từ đếm được số nhiều. Loại 'much' và 'little'. Trong câu hỏi chuẩn mực số lượng, 'many' là lựa chọn tối ưu nhất." },
+            { tab: 0, id: 7, q: "It has (7) ______ fast computers and free internet.", options: ["slow", "broken", "new", "old"], correct: "new", exp: "Ngay tiêu đề đã chỉ rõ 'New Computer Room Now Open!' -> Phòng máy mới mở thì máy tính phải mới (new)." },
+            { tab: 0, id: 8, q: "You can use it (8) ______ 8:00 AM to 5:00 PM every day.", options: ["from", "in", "on", "at"], correct: "from", exp: "Cấu trúc chỉ khoảng thời gian cố định: 'From... to...' (Từ thời điểm nào đến thời điểm nào)." },
+            { tab: 0, id: 9, q: "Please be quiet and take care of the (9) _____.", options: ["staffroom", "projector", "equipment", "timetable"], correct: "equipment", exp: "Thiết bị công nghệ nói chung trong phòng máy được gọi tổng quát là 'equipment' (danh từ không đếm được)." },
+            
+            // Tab 1
+            { tab: 1, id: 10, q: "Come and see our beautiful classrooms and (10) ______ Saturday, October 20th.", options: ["from", "at", "in", "on"], correct: "on", exp: "Chúng ta bắt buộc dùng giới từ 'on' trước các thứ trong tuần hoặc ngày cụ thể trong tháng." },
+            { tab: 1, id: 11, q: "Our event (11) ______ 9:00 AM.", options: ["ends", "finishes", "starts", "stops"], correct: "starts", exp: "Ngữ cảnh ngày hội mở cửa: Sự kiện của chúng tôi bắt đầu (starts) vào lúc 9:00 sáng." },
+            { tab: 1, id: 12, q: "You can meet our (12) ______ teachers and talk to the principal.", options: ["new", "friendly", "small", "sad"], correct: "friendly", exp: "Tính từ tích cực để thu hút học sinh: các thầy cô giáo luôn thân thiện (friendly)." },
+            { tab: 1, id: 13, q: "This is a great chance (13) ______ learn about our activities and programs.", options: ["to learn", "learning", "learned", "learn"], correct: "to learn", exp: "Cấu trúc danh từ: 'a great chance + to-V' (Cơ hội tuyệt vời để làm việc gì đó)." },
+
+            // Tab 2
+            { tab: 2, id: 14, q: "It is located inside the Temple of Literature (14) _______ Ha Noi.", options: ["in", "on", "for", "at"], correct: "in", exp: "Dùng giới từ 'in' trước tên các tỉnh, thành phố lớn hoặc quốc gia (in Ha Noi)." },
+            { tab: 2, id: 15, q: "but then, (15) _______ students from ordinary families...", options: ["normal", "happy", "important", "gifted"], correct: "gifted", exp: "'Gifted students' nghĩa là học sinh có năng khiếu, học giỏi xuất chúng, được chọn để học tại Văn Miếu." },
+            { tab: 2, id: 16, q: "...families (16) ________ also study at the Academy.", options: ["would", "could", "should", "must"], correct: "could", exp: "'Could' thể hiện năng lực hoặc khả năng/cơ hội được phép làm gì trong quá khứ." },
+            { tab: 2, id: 17, q: "Those who (17) _______ the major tests would take the Hoi Examination...", options: ["passed", "took", "entered", "made"], correct: "passed", exp: "Cụm từ phối hợp chuẩn: 'pass the test/examination' nghĩa là vượt qua kì thi, thi đỗ." },
+            { tab: 2, id: 18, q: "The (18) _______ students in the Dinh examination would become the imperial officials.", options: ["best", "unsuccessful", "bad", "common"], correct: "best", exp: "Chỉ những học giả xuất sắc nhất (best) đỗ kì thi Đình mới được tuyển thẳng làm quan triều đình." },
+            { tab: 2, id: 19, q: "The Imperial Academy was a(n) (19) _______ education centre in the country...", options: ["small", "intelligent", "important", "large"], correct: "important", exp: "Văn Miếu - Quốc Tử Giám đóng vai trò là một trung tâm giáo dục cực kỳ quan trọng (important)." },
+
+            // Tab 3
+            { tab: 3, id: 20, q: "It was (20) ______ in 1988, with 12 students.", options: ["opened", "started", "originated", "began"], correct: "started", exp: "Cấu trúc bị động với mốc thời gian thành lập tổ chức trường học: 'It was started' (Nó được bắt đầu/thành lập)." },
+            { tab: 3, id: 21, q: "offers a truly (21) ______ education.", options: ["national", "regional", "international", "local"], correct: "international", exp: "Dựa vào tên gọi 'International School' của trường để suy luận ra hệ giáo dục quốc tế (international)." },
+            { tab: 3, id: 22, q: "(22) ______ are encouraged to be creative, confident and caring.", options: ["Parents", "Students", "Schools", "Teachers"], correct: "Students", exp: "Học sinh (Students) là trung tâm của giáo dục, được định hướng rèn luyện các phẩm chất tự tin sáng tạo." },
+            { tab: 3, id: 23, q: "work together for a better (23) ______.", options: ["school", "world", "earth", "globe"], correct: "world", exp: "Thành ngữ phổ quát: 'work together for a better world' (chung tay vì một thế giới tốt đẹp hơn)." },
+            { tab: 3, id: 24, q: "It also has many community (24) ______ for students to experience...", options: ["services", "activities", "jobs", "work"], correct: "activities", exp: "Cụm danh từ: 'community activities' đại diện cho chuỗi hoạt động ngoại khóa vì cộng đồng." },
+            { tab: 3, id: 25, q: "Therefore, these activities are both fun (25) ______ meaningful.", options: ["or", "and", "yet", "so"], correct: "and", exp: "Cấu trúc cặp tương hỗ cố định: 'both A and B' (vừa mang tính giải trí lại vừa có ý nghĩa)." },
+
+            // Tab 4
+            { tab: 4, id: 26, q: "What is the main idea of the passage?", options: ["The passage discusses the current number of students.", "The passage explains the history and early focus of Monash University.", "The passage tells the story of General Sir John Monash.", "The passage describes the famous buildings at Monash University."], correct: "The passage explains the history and early focus of Monash University.", exp: "Bài đọc tổng quan nói về các mốc thành lập lịch sử năm 1958 và các ngành học trọng tâm ban đầu của Đại học Monash." },
+            { tab: 4, id: 27, q: "What does the word “established” in the passage mostly mean?", options: ["made or started something", "went home", "built a house", "took a test"], correct: "made or started something", exp: "'Establish' có nghĩa gốc là kiến thiết, thành lập, khởi tạo nên đồng nghĩa với hành động 'made or started something'." },
+            { tab: 4, id: 28, q: "When Monash University started, what subject was it first famous for?", options: ["history", "science and research", "politics", "law and art"], correct: "science and research", exp: "Dẫn chứng dòng cuối: 'Initially, it was best known for its strong research capacity in the sciences...'" },
+            { tab: 4, id: 29, q: "According to the passage, which of the following sentences is TRUE?", options: ["Monash University was named after a city.", "Monash University is the oldest university in Victoria.", "Monash University started in 1958 and is in Melbourne.", "Monash University was originally planned to focus on arts."], correct: "Monash University started in 1958 and is in Melbourne.", exp: "Đối chiếu dòng số 1 & 2 của đoạn văn: 'Monash University is a public university located in Melbourne... established in 1958'." },
+            { tab: 4, id: 30, q: "What is special about the name of Monash University in Australia at that time?", options: ["It was the first university to be named after a state.", "It was the first university to be named after a person.", "It was named after a city and a state.", "It was the first university with a short name."], correct: "It was the first university to be named after a person.", exp: "Dẫn chứng câu: 'This was the first time in Australia that a university had been named after a person...'" },
+
+            // Tab 5
+            { tab: 5, id: 31, q: "What can be the best title for the passage?", options: ["The Students of Chu Van An", "A Great Teacher: Chu Van An", "The History of Quoc Tu Giam", "The Doctoral Examination"], correct: "A Great Teacher: Chu Van An", exp: "Đoạn văn giới thiệu tường tận về tiểu sử cuộc đời đức độ và sự nghiệp gieo chữ làm thầy giáo mẫu mực của cụ Chu Văn An." },
+            { tab: 5, id: 32, q: "The word “respectable” in the passage is closest in meaning to __________.", options: ["angry", "poor", "honored", "famous"], correct: "honored", exp: "'Respectable' tức là đáng kính trọng, nhận được sự nể trọng lớn lao từ mọi người xung quanh, đồng nghĩa với 'honored'." },
+            { tab: 5, id: 33, q: "Which of the following is NOT true according to the passage?", options: ["Chu Van An liked to read books.", "Chu Van An worked as a mandarin after passing the examination.", "Chu Van An was invited to the capital city to teach at Quoc Tu Giam.", "Chu Van An had students who became famous."], correct: "Chu Van An worked as a mandarin after passing the examination.", exp: "Bài viết ghi rõ: 'he refused to work as a mandarin' (ông đã từ chối làm quan sau khi đỗ đạt) nên nhận định chọn làm quan là SAI." },
+            { tab: 5, id: 34, q: "The word “them” in line 4 refers to _______.", options: ["books", "famous people", "students", "different parts of the country"], correct: "students", exp: "Câu liền trước: 'He had many students... Many of them...' -> Đại từ 'them' đại diện thay thế cho 'students'." },
+            { tab: 5, id: 35, q: "Why did more students come to study with Chu Van An?", options: ["Because he was serious, noble, and intelligent.", "Because he was very rich.", "Because he was the head of Quoc Tu Giam.", "Because he lived in the capital city."], correct: "Because he was serious, noble, and intelligent.", exp: "Dẫn chứng: 'His seriousness, noble conduct and intelligence attracted more and more students.'" },
+
+            // Tab 6
+            { tab: 6, id: 36, q: "Chọn câu phù hợp điền vào ô trống số (36):", options: ["The students also have to wear a uniform every day.", "It was founded in the 10th century.", "I think it is the best place to learn.", "There are about 1000 students studying there."], correct: "It was founded in the 10th century.", exp: "Phương án B cung cấp mốc thời gian thành lập trường, đứng ngay sau câu mô tả vị trí địa lý của Hogwarts tại Scotland." },
+            { tab: 6, id: 37, q: "Chọn câu phù hợp điền vào ô trống số (37):", options: ["The students also have to wear a uniform every day.", "It was founded in the 10th century.", "I think it is the best place to learn.", "There are about 1000 students studying there."], correct: "There are about 1000 students studying there.", exp: "Câu tiếp theo nói về việc học tập 'They learn theory...' nên câu giới thiệu số lượng học sinh nội trú là hoàn toàn hợp lý." },
+            { tab: 6, id: 38, q: "Chọn câu phù hợp điền vào ô trống số (38):", options: ["The students also have to wear a uniform every day.", "It was founded in the 10th century.", "I think it is the best place to learn.", "There are about 1000 students studying there."], correct: "The students also have to wear a uniform every day.", exp: "Thông tin quy định mặc đồng phục của học sinh bổ sung dữ liệu đời sống sinh hoạt trường lớp nội trú." },
+            { tab: 6, id: 39, q: "Chọn câu phù hợp điền vào ô trống số (39):", options: ["The students also have to wear a uniform every day.", "It was founded in the 10th century.", "I think it is the best place to learn.", "There are about 1000 students studying there."], correct: "I think it is the best place to learn.", exp: "Câu kết bài bày tỏ cảm tưởng cá nhân xuất sắc về ngôi trường phép thuật lý tưởng." },
+
+            // Tab 7
+            { tab: 7, id: 40, q: "Chọn cụm/câu phù hợp cho vị trí (40):", options: ["The school's students have won many precious prizes...", "It also plans to prepare students to speak two foreign languages.", "It had different names and got this name in 1981.", "such as an online library and other modern classroom facilities."], correct: "It had different names and got this name in 1981.", exp: "Nối tiếp thông tin lịch sử từ năm xây dựng 1877, chi tiết đổi tên vào năm 1981 tạo tính liền mạch lịch sử." },
+            { tab: 7, id: 41, q: "Chọn cụm/câu phù hợp cho vị trí (41):", options: ["The school's students have won many precious prizes...", "It also plans to prepare students to speak two foreign languages.", "It had different names and got this name in 1981.", "such as an online library and other modern classroom facilities."], correct: "The school's students have won many precious prizes...", exp: "Câu trước ca ngợi chất lượng dạy và học thì câu sau đưa ra minh chứng là các giải thưởng quý giá học sinh đạt được." },
+            { tab: 7, id: 42, q: "Chọn cụm/câu phù hợp cho vị trí (42):", options: ["The school's students have won many precious prizes...", "It also plans to prepare students to speak two foreign languages.", "It had different names and got this name in 1981.", "such as an online library and other modern classroom facilities."], correct: "It also plans to prepare students to speak two foreign languages.", exp: "Phát triển ý từ câu trước về việc giảng dạy 4 thứ tiếng, bổ sung thêm kế hoạch thông thạo song ngữ." },
+            { tab: 7, id: 43, q: "Chọn cụm/câu phù hợp cho vị trí (43):", options: ["The school's students have won many precious prizes...", "It also plans to prepare students to speak two foreign languages.", "It had different names and got this name in 1981.", "such as an online library and other modern classroom facilities."], correct: "such as an online library and other modern classroom facilities.", exp: "Cụm từ bắt đầu bằng 'such as' dùng để lấy ví dụ minh họa trực tiếp cho danh từ 'facilities' đứng liền trước." }
+        ];
+
+        let accumulatedScore = 0;
+        const processedQuestions = new Set();
+        const audioUnit = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Âm thanh Gamification tự động
+        function triggerChime(isCorrect) {
+            const osc = audioUnit.createOscillator();
+            const amp = audioUnit.createGain();
+            osc.connect(amp);
+            amp.connect(audioUnit.destination);
+
+            if (isCorrect) {
+                osc.frequency.setValueAtTime(587.33, audioUnit.currentTime); // D5
+                osc.frequency.setValueAtTime(880, audioUnit.currentTime + 0.1); // A5
+                amp.gain.setValueAtTime(0.1, audioUnit.currentTime);
+                osc.start(); osc.stop(audioUnit.currentTime + 0.25);
+            } else {
+                osc.frequency.setValueAtTime(180, audioUnit.currentTime);
+                osc.frequency.linearRampToValueAtTime(120, audioUnit.currentTime + 0.2);
+                amp.gain.setValueAtTime(0.15, audioUnit.currentTime);
+                osc.start(); osc.stop(audioUnit.currentTime + 0.3);
+            }
+        }
+
+        // Chuyển Tab Bài Tập linh hoạt giống ảnh minh họa
+        function activateTab(tabIdx) {
+            document.querySelectorAll('.tab-button').forEach((btn, index) => {
+                if(index === tabIdx) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            document.querySelectorAll('.content-section').forEach((sec, index) => {
+                if(index === tabIdx) sec.classList.add('active');
+                else sec.classList.remove('active');
+            });
+        }
+
+        // Ẩn hiện bản dịch
+        function toggleTransField(id) {
+            const block = document.getElementById(id);
+            block.style.display = (block.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Click hiện đáp án trực tiếp trong bài đọc
+        function revealTextBlank(element, answerText) {
+            element.innerText = answerText;
+            element.classList.add('revealed');
+        }
+
+        // Thuật toán xáo ngẫu nhiên vị trí các lựa chọn ABCD
+        function randomizeArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Tạo giao diện câu hỏi tự động theo Tab
+        function initializeQuizBlocks() {
+            for (let i = 0; i <= 7; i++) {
+                const targetBox = document.getElementById(`q-box-${i}`);
+                if (!targetBox) continue;
+
+                const associatedQuestions = database.filter(item => item.tab === i);
+                associatedQuestions.forEach(questionData => {
+                    const node = document.createElement('div');
+                    node.className = 'question-node';
+                    node.id = `q-node-${questionData.id}`;
+
+                    const shuffledOpts = randomizeArray([...questionData.options]);
+                    let optionsMarkup = "";
+                    
+                    shuffledOpts.forEach(optText => {
+                        optionsMarkup += `
+                            <button class="option-item" onclick="verifyUserChoice(this, ${questionData.id}, '${optText}', '${questionData.correct}')">
+                                ${optText}
+                            </button>
+                        `;
+                    });
+
+                    node.innerHTML = `
+                        <div class="question-text">Câu ${questionData.id}: ${questionData.q}</div>
+                        <div class="options-container">${optionsMarkup}</div>
+                        <div class="explain-box" id="exp-box-${questionData.id}">
+                            <strong>💡 Ms Lê Hằng Giải Thích Chi Tiết:</strong><br>${questionData.exp}
+                        </div>
+                    `;
+                    targetBox.appendChild(node);
+                });
+            }
+        }
+
+        // Kiểm tra câu trả lời
+        function verifyUserChoice(btnElement, qId, selectedVal, correctVal) {
+            const parentNode = document.getElementById(`q-node-${qId}`);
+            const totalButtons = parentNode.querySelectorAll('.option-item');
+            const explanationBlock = document.getElementById(`exp-box-${qId}`);
+
+            totalButtons.forEach(btn => btn.style.pointerEvents = 'none');
+
+            if (selectedVal === correctVal) {
+                btnElement.classList.add('correct');
+                triggerChime(true);
+                if (!processedQuestions.has(qId)) {
+                    accumulatedScore++;
+                    processedQuestions.add(qId);
+                    document.getElementById('dock-score').innerText = accumulatedScore;
+                }
+            } else {
+                btnElement.classList.add('wrong');
+                triggerChime(false);
+                totalButtons.forEach(btn => {
+                    if (btn.innerText.trim() === correctVal) btn.classList.add('correct');
+                });
+            }
+            explanationBlock.style.display = 'block';
+        }
+
+        // Xử lý nộp bài
+        function processFinalEvaluation() {
+            const modal = document.getElementById('finish-panel');
+            const scoreBadge = document.getElementById('modal-score-badge');
+            const speechText = document.getElementById('modal-speech');
+
+            scoreBadge.innerText = `${accumulatedScore}/${database.length}`;
+
+            let evaluation = "Các con hãy cố gắng luyện tập thêm lần nữa để ghi nhớ sâu sắc kiến thức nhé!";
+            if (accumulatedScore === database.length) {
+                evaluation = "THIÊN TÀI ĐÍNH THỰC! 🏆 Con làm đúng tuyệt đối tất cả các câu hỏi rồi!";
+            } else if (accumulatedScore >= database.length * 0.8) {
+                evaluation = "XUẤT SẮC QUÁ! 🌟 Điểm số cực kỳ ấn tượng, Ms Lê Hằng rất tự hào về con!";
+            } else if (accumulatedScore >= database.length * 0.5) {
+                evaluation = "LÀM TỐT LẮM! Con đã nắm vững phần lớn kiến thức cơ bản rồi đó!";
+            }
+
+            speechText.innerText = evaluation;
+            modal.style.display = 'flex';
+        }
+
+        window.onload = initializeQuizBlocks;
+    </script>
+</body>
+</html>
